@@ -1,0 +1,29 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: 'Práctica 3: Sistema musculoesquelético'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Jesus Geovanny
+    family-names: Bautista Paz
+    email: l23212181@tijuana.tecnm.mx
+    affiliation: TecNM / IT TIJUANA
+repository-code: 'https://github.com/l23212181-creator/MSFP3'
+keywords:
+  - sistema musculoesquelético
+  - atrofia muscular
+  - analogía eléctrica
+  - amortiguamiento viscoso
+  - elasticidad
+  - controlador PI
+  - Simulink
+  - Python
+  - MATLAB
+  - simulación in silico
+license: BSD-2-Clause
+version: '1.0'
+date-released: '2026-11-03'
