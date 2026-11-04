@@ -416,26 +416,19 @@ Las figuras de MATLAB y Python permiten una comparación visual. La diferencia d
 <a id="flujo"></a>
 ## Flujo de trabajo
 
-```mermaid
-flowchart TD
-    A[Modelo musculoesqueletico] --> B[Analogia electrica]
-    B --> C[Analisis matematico]
-    C --> D[Funcion de transferencia]
-    D --> E[Polos y estabilidad]
-    B --> F[Condicion sana R 100 ohm]
-    B --> G[Atrofia simulada R 10 kohm]
-    F --> H[Referencia sana]
-    G --> I[Respuesta del caso]
-    H --> J[Comparacion de respuestas]
-    I --> J
-    J --> K[Controlador PI]
-    K --> L[Sintonizacion en Simulink]
-    L --> M[Respuesta controlada]
-    D --> N[Implementacion Python]
-    M --> O[Verificacion de graficas]
-    N --> O
-    O --> P[Documentacion GitHub]
-```
+**Secuencia de desarrollo de la práctica**
+
+1. **Modelo musculoesquelético:** identificación del músculo, tendón y propiedades mecánicas.
+2. **Analogía eléctrica:** representación de elasticidades y amortiguamiento.
+3. **Análisis matemático:** aplicación de superposición y obtención de la función de transferencia.
+4. **Análisis dinámico:** determinación de polos y evaluación de estabilidad.
+5. **Escenarios de simulación:** individuo sano (R = 100 Ω) y atrofia simulada (R = 10 kΩ).
+6. **Comparación de respuestas:** evaluación de la fuerza transmitida en ambos escenarios.
+7. **Control PI:** sintonización en Simulink y evaluación de la respuesta con tratamiento.
+8. **Reproducción en Python:** implementación del modelo y generación de gráficas.
+9. **Verificación y documentación:** comparación de resultados y organización del repositorio.
+
+**Flujo resumido:** Modelo fisiológico → Analogía eléctrica → Función de transferencia → Simulación de control y caso → Control PI → Comparación MATLAB/Python → Documentación en GitHub.
 
 El procedimiento reúne la interpretación fisiológica, el análisis de la analogía eléctrica, la simulación de dos condiciones y la comparación de la respuesta controlada con la referencia.
 
