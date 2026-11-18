@@ -1,14 +1,25 @@
-# Práctica 4: Modelado y control del sistema endócrino
+[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=l23212181/MSFP3)
 
-**Tecnológico Nacional de México — Instituto Tecnológico de Tijuana**  
-**Departamento de Ingeniería Eléctrica y Electrónica — Ingeniería Biomédica**  
+# Práctica 3 — Modelo y control del sistema musculoesquelético
+
+Repositorio académico de **Modelado de Sistemas Fisiológicos**, correspondiente a **Ingeniería Biomédica** del Tecnológico Nacional de México / Instituto Tecnológico de Tijuana. La práctica aborda la representación de un sistema musculoesquelético mediante una analogía eléctrica, la obtención de su modelo matemático, el análisis de estabilidad y la comparación de un individuo de referencia con un caso de **atrofia muscular simulada**. Se incorpora un controlador **PI** y se reproducen las respuestas mediante MATLAB/Simulink y Python.
+
+El caso de referencia emplea una resistencia equivalente de **100 Ω**, mientras que la condición simulada de atrofia utiliza **10 kΩ**, representando una modificación del amortiguamiento viscoso del modelo. La respuesta del individuo sano sirve como referencia para evaluar la respuesta controlada.
+
+**Docente:** Dr. Paul Antonio Valle Trujillo  
+**Correo:** paul.valle@tectijuana.edu.mx  
+**Departamento:** Ingeniería Eléctrica y Electrónica  
+**Institución:** Tecnológico Nacional de México / Instituto Tecnológico de Tijuana  
 **Asignatura:** Modelado de Sistemas Fisiológicos  
-**Docente:** Dr. Paul Antonio Valle Trujillo
+**Programa:** Ingeniería Biomédica  
+**Estudiante:** Bautista Paz Jesus Geovanny · 23212181 · l23212181@tectijuana.edu.mx  
 
-**Alumno:** Jesús Geovanny Bautista Paz  
-**Número de control:** 23212181  
-**Correo institucional:** l23212181@tectijuana.edu.mx
+**Repositorio de la asignatura:** https://github.com/DrPaulValle/MSF-IBF1020  
+**Sede:** Blvd. Alberto Limón Padilla s/n, Tijuana, C. P. 22454, B. C., México.
 
+---
+
+<a id="contenido"></a>
 ## Contenido
 
 1. [Resumen](#resumen)
@@ -19,7 +30,7 @@
 6. [Análisis temporal y de estabilidad](#analisis)
 7. [Señales de entrada y condiciones de simulación](#senales)
 8. [Implementación en MATLAB, Simulink y Simscape](#matlab)
-9. [Control en lazo cerrado y sintonización PID](#pid)
+9. [Control en lazo cerrado y sintonización PI](#pid)
 10. [Reproducción en Python](#python)
 11. [Controlador analógico y laboratorio](#laboratorio)
 12. [Resultados y verificación cruzada](#resultados)
@@ -30,372 +41,541 @@
 17. [Reproducibilidad y entregables](#reproducibilidad)
 18. [Referencias](#referencias)
 
+---
+
+<a id="resumen"></a>
 ## Resumen
 
-En esta práctica se desarrolla un modelo eléctrico equivalente de segundo orden para representar de manera simplificada la dinámica del sistema endócrino. Se consideran los procesos de estímulo fisiológico, secreción, transporte, almacenamiento y respuesta hormonal mediante una fuente de entrada, resistencias, un capacitor y un inductor. Se comparan dos condiciones: control y caso, modificando la capacitancia y la resistencia asociada con la utilización o eliminación de la señal. A partir de las funciones de transferencia se estudian el error en estado estacionario, los polos y la estabilidad. Finalmente, se implementa un controlador PID para aproximar la respuesta del caso a la respuesta de referencia y se comparan los resultados de MATLAB/Simulink, Python y laboratorio.
+Se estudia un modelo simplificado del sistema musculoesquelético en el que la **elasticidad del tendón** y la **elasticidad pasiva del tejido conectivo muscular** se representan mediante elementos capacitivos, mientras que el amortiguamiento viscoso muscular se asocia con una resistencia. Se consideran una fuerza de entrada $F(t)$, una fuerza activa relacionada con el elemento contráctil y una fuerza transmitida $F_s(t)$. El modelo se utiliza para comparar la condición de referencia y un caso de atrofia representado por un incremento de la resistencia.
 
-**Palabras clave:** sistema endócrino; modelado fisiológico; analogía eléctrica; circuito RLC; función de transferencia; sistema de segundo orden; estabilidad; error en estado estacionario; controlador PID; MATLAB; Simulink; Python; osciloscopio; respuesta hormonal.
+El desarrollo incluye el análisis matemático del circuito equivalente, la función de transferencia, la estabilidad de la planta, la simulación de una señal rectangular y el diseño de un **controlador proporcional-integral (PI)**. La respuesta de la condición alterada se contrasta con la del individuo sano, utilizando las gráficas obtenidas en MATLAB y Python.
 
+**Palabras clave:** sistema musculoesquelético; atrofia muscular; analogía eléctrica; amortiguamiento viscoso; elasticidad; controlador PI; MATLAB; Simulink; Python; simulación *in silico*.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="objetivos"></a>
 ## Competencia y objetivos
 
 ### Competencia a desarrollar
 
-Modelizar sistemas fisiológicos mediante analogías eléctricas, ecuaciones diferenciales y funciones de transferencia para analizar su comportamiento dinámico y diseñar estrategias de control mediante técnicas de control clásico. En esta práctica se interpreta una descripción simplificada de los procesos de secreción, transporte, almacenamiento y respuesta hormonal, comparando una condición de referencia con una condición alterada.
+Aplicar los fundamentos del modelado matemático y del control retroalimentado para describir y analizar el comportamiento dinámico de un sistema musculoesquelético simplificado, interpretando la correspondencia entre parámetros eléctricos y propiedades mecánicas de tejidos biológicos.
 
 ### Objetivo general
 
-Formular y analizar un circuito eléctrico equivalente de segundo orden que represente la dinámica simplificada del sistema endócrino, comparar las condiciones control y caso y diseñar un controlador PID que reduzca la diferencia entre sus respuestas.
+Modelar y simular la respuesta de un sistema musculoesquelético ante una fuerza de entrada, comparar el comportamiento de referencia con un caso de atrofia muscular simulada y evaluar la acción de un controlador PI mediante herramientas computacionales.
 
 ### Objetivos específicos
 
-- Identificar la correspondencia entre los procesos hormonales y los elementos del circuito equivalente.
-- Obtener las funciones de transferencia para las condiciones control y caso.
-- Calcular el error en estado estacionario y determinar la estabilidad mediante el análisis de polos.
-- Simular las respuestas del sistema mediante MATLAB/Simulink y Python.
-- Diseñar y sintonizar un controlador PID para aproximar la respuesta del caso a la respuesta de referencia.
-- Contrastar las respuestas computacionales con las señales observadas en el laboratorio.
+- Identificar los elementos contráctiles, el amortiguamiento viscoso y las elasticidades representadas en el circuito equivalente.
+- Formular las relaciones matemáticas del modelo y analizar su función de transferencia.
+- Examinar la estabilidad de la planta mediante sus polos.
+- Comparar la respuesta del individuo sano ($R=100\,\Omega$) con la del caso simulado ($R=10\,\mathrm{k}\Omega$).
+- Aplicar una señal rectangular de entrada en un intervalo de simulación de diez segundos.
+- Sintonizar un controlador PI y registrar sus ganancias proporcional e integral.
+- Representar gráficamente la entrada, la referencia, el caso alterado y la respuesta controlada.
+- Contrastar los resultados obtenidos en MATLAB/Simulink y Python y documentar los archivos de la práctica.
 
+[Volver al contenido](#contenido)
+
+---
+
+<a id="temario"></a>
 ## Relación con el temario
 
-La práctica integra el modelado de sistemas fisiológicos, la representación mediante circuitos eléctricos, la formulación de ecuaciones diferenciales, la transformada de Laplace, el análisis de sistemas de segundo orden y el diseño de controladores clásicos.
+La práctica retoma conceptos de modelado de sistemas fisiológicos y de control:
 
-| Contenido | Aplicación en la práctica |
-|---|---|
-| Modelado fisiológico | Representación simplificada de la dinámica hormonal |
-| Analogías eléctricas | Representación de transporte, almacenamiento y respuesta mediante R, C y L |
-| Ecuaciones integro-diferenciales | Descripción de las relaciones entre entrada, salida y flujos |
-| Transformada de Laplace | Obtención de las funciones de transferencia |
-| Sistemas de segundo orden | Análisis de polos, estabilidad y respuesta temporal |
-| Control clásico | Diseño y sintonización de un controlador PID |
-| Simulación y experimentación | Comparación de MATLAB/Simulink, Python y osciloscopio |
+| Unidad | Área | Contenidos aplicados |
+|---|---|---|
+| I | Sistemas de control retroalimentados | Señales de entrada, comparación de respuestas, error y estabilidad |
+| II | Modelado matemático | Analogías mecánico-eléctricas, formulación de ecuaciones y función de transferencia |
+| III | Controladores | Retroalimentación, controlador PI y sintonización de ganancias |
 
+La interpretación fisiológica se centra en las propiedades pasivas del músculo y del tendón y en el efecto de modificar el amortiguamiento equivalente.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="analogia"></a>
 ## Modelo físico y analogía eléctrica
 
-El modelo representa el estímulo fisiológico mediante una fuente de voltaje $V_e(t)$. La resistencia $R_1$ representa la oposición efectiva asociada al transporte hormonal. El capacitor $C$, conectado entre el nodo de salida y la referencia, representa la capacidad de almacenamiento temporal de la señal. La rama formada por el inductor $L$ y la resistencia $R_2$, conectados en serie, representa la dinámica retardada y la oposición asociada con la respuesta, utilización o eliminación de la señal en el órgano diana.
+El diagrama biológico distingue el **individuo sano** del **caso de atrofia muscular simulada**. En el segundo se representa un músculo de menor volumen; en la simulación la diferencia entre ambos casos se introduce aumentando $R$, sin afirmar que esa resistencia constituya una medición clínica directa de atrofia.
 
-La salida $V_s(t)$ se mide en el nodo posterior a $R_1$, común al capacitor y a la rama $L-R_2$. El flujo de entrada se representa mediante $F_e(t)$, mientras que el flujo de salida se representa mediante $F_s(t)$. La analogía es fenomenológica: permite reproducir propiedades dinámicas como almacenamiento, disipación, retardo e inercia, sin establecer una equivalencia directa entre los valores eléctricos y parámetros hormonales medidos.
+![Modelo musculoesquelético: individuo sano y atrofia muscular simulada](Biorender_3.png)
 
-### Diagrama biológico
+| Símbolo | Elemento del modelo | Interpretación |
+|---|---|---|
+| $F(t)$ | Fuente de excitación | Fuerza aplicada al sistema, representada por una señal eléctrica |
+| $F_0(t)$ | Elemento contráctil | Componente activo del músculo |
+| $F_s(t)$ | Salida del sistema | Fuerza transmitida en la representación del modelo |
+| $R$ | Resistencia | Amortiguamiento viscoso equivalente del tejido muscular |
+| $C_g$ | Capacitancia | Elasticidad del tendón, según el esquema de la práctica |
+| $C_p$ | Capacitancia | Elasticidad pasiva del tejido conectivo muscular |
+| $\alpha$ | Factor del modelo | Coeficiente empleado en la formulación de la fuerza activa |
 
-El diagrama relaciona el estímulo fisiológico, la glándula endócrina, el transporte hormonal, el almacenamiento y la respuesta del órgano diana con los elementos del circuito equivalente. También muestra la comparación entre la condición de control y la condición alterada.
+### Parámetros utilizados en las simulaciones
 
-![Diagrama BioRender de la Práctica 4: modelo del sistema endócrino en control y caso de hipertiroidismo](imagenes/Sistema endocrino.png)
+| Parámetro | Individuo sano | Atrofia simulada | Representación |
+|---|---:|---:|---|
+| $R$ | $100$ | $10\,000$ | $\Omega$ |
+| $C_g$ | $10$ | $10$ | $\mu\mathrm{F}$ |
+| $C_p$ | $100$ | $100$ | $\mu\mathrm{F}$ |
+| $\alpha$ | $0.25$ | $0.25$ | Adimensional |
+| $F_0$ | $1$ | $1$ | Amplitud de entrada en la simulación |
 
-### Parámetros utilizados
+Las capacitancias y resistencias corresponden a la **analogía eléctrica empleada en el código**. No se deben interpretar como conversiones directas a unidades mecánicas sin una escala de equivalencia definida.
 
-| Componente | Control | Caso |
-|---|---:|---:|
-| $R_1$ | 1 kΩ | 1 kΩ |
-| $L$ | 100 mH | 100 mH |
-| $C$ | 1 µF | 1000 µF |
-| $R_2$ | 100 kΩ | 1 kΩ |
+[Volver al contenido](#contenido)
 
-La condición control representa la referencia. En el caso se incrementa la capacitancia y se reduce $R_2$, modificando la dinámica y el valor final de la respuesta.
+---
 
+<a id="modelo"></a>
 ## Formulación matemática
 
-### 1. Ecuaciones del circuito
+### 1. Relaciones del circuito equivalente
 
-A partir de las leyes de Kirchhoff, las relaciones del circuito equivalente pueden expresarse como:
+El análisis matemático adjunto separa el circuito mediante superposición para estudiar las contribuciones de las fuentes. En la primera parte se establece la suma de corrientes equivalentes y se emplean las relaciones constitutivas de los elementos resistivos y capacitivos. La derivación completa se conserva en [`Análisis matemático_Bautista23212181.pdf`](An%C3%A1lisis%20matem%C3%A1tico_Bautista23212181.pdf).
 
-$$
-V_e(t)=R_1F_e(t)+\frac{1}{C}\int [F_e(t)-F_s(t)]\,dt
-$$
+Para la contribución de la fuente de entrada se obtiene la expresión de referencia:
 
 $$
-\frac{1}{C}\int [F_e(t)-F_s(t)]\,dt
-=L\frac{dF_s(t)}{dt}+R_2F_s(t)
+\frac{F_{s1}(s)}{F(s)}=\frac{C_gRs+1}{R(C_p+C_g)s+1}.
 $$
 
-La salida se expresa mediante la rama inductiva-resistiva:
-
-$$
-V_s(t)=L\frac{dF_s(t)}{dt}+R_2F_s(t)
-$$
+La segunda contribución, vinculada con el elemento contráctil, se combina con la primera para determinar la respuesta transmitida.
 
 ### 2. Función de transferencia
 
-Aplicando la transformada de Laplace con condiciones iniciales nulas, se obtiene:
+En el desarrollo matemático manuscrito se presenta:
 
 $$
-G(s)=\frac{V_s(s)}{V_e(s)}
-=\frac{Ls+R_2}
-{R_1LCs^2+(L+R_1R_2C)s+(R_1+R_2)}
+\boxed{G(s)=\frac{F_s(s)}{F(s)}=\frac{C_gRs+1-\alpha}{R(C_p+C_g)s+1}}.
 $$
 
-Para la condición control, utilizando $R_1=1\,k\Omega$, $L=0.1\,H$, $C=1\,\mu F$ y $R_2=100\,k\Omega$:
+El código Python entregado implementa el numerador como `R * 1e-6` y `1 - alpha`, es decir:
 
 $$
-G_{\mathrm{control}}(s)=
-\frac{0.1s+100000}
-{0.0001s^2+100.1s+101000}
+G_{\mathrm{Python}}(s)=\frac{R(10^{-6})s+(1-\alpha)}{R(C_p+C_g)s+1}.
 $$
 
-Para la condición caso, utilizando $R_1=1\,k\Omega$, $L=0.1\,H$, $C=1000\,\mu F$ y $R_2=1\,k\Omega$:
+**Nota de consistencia:** el factor $10^{-6}$ usado en el numerador del programa no coincide con el valor declarado $C_g=10\times10^{-6}\,\mathrm{F}$. Se presentan ambas expresiones tal como aparecen en los materiales; antes de declarar una equivalencia exacta entre el análisis manuscrito y el código es necesario verificar cuál es la expresión definitiva utilizada en Simulink.
+
+### 3. Representación dinámica
+
+El denominador de la función de transferencia es de primer orden. En la representación empleada por Python, para entrada $u(t)=F(t)$ y salida $y(t)=F_s(t)$, se cumple:
 
 $$
-G_{\mathrm{caso}}(s)=
-\frac{0.1s+1000}
-{0.1s^2+1000.1s+2000}
+R(C_p+C_g)\frac{dy(t)}{dt}+y(t)
+=R(10^{-6})\frac{du(t)}{dt}+(1-\alpha)u(t).
 $$
 
-Estas funciones corresponden a las expresiones implementadas en el programa de Python mediante `control.tf`.
+Esta forma expresa la dinámica **de la función implementada en Python**, con condiciones iniciales compatibles con la simulación.
 
+[Volver al contenido](#contenido)
+
+---
+
+<a id="analisis"></a>
 ## Análisis temporal y de estabilidad
 
-### 1. Error en estado estacionario
+### 1. Respuesta estacionaria
 
-Para una entrada escalón unitario, la ganancia en estado estacionario se obtiene evaluando la función de transferencia en $s=0$:
-
-$$
-G(0)=\frac{R_2}{R_1+R_2}
-$$
-
-El error final respecto a la entrada unitaria es:
+Para una entrada escalón unitario, la ganancia estática de la planta implementada es
 
 $$
-e_{ss}=1-G(0)=\frac{R_1}{R_1+R_2}
+G(0)=1-\alpha=0.75.
 $$
 
-| Condición | Ganancia final | Error en estado estacionario |
-|---|---:|---:|
-| Control | 0.990099 | 0.009901 (aprox. 0.99 %) |
-| Caso | 0.5 | 0.5 (50 %) |
-
-La diferencia entre los valores finales de las respuestas control y caso es aproximadamente 0.490099 V para una entrada de 1 V.
+Por tanto, si se aplica una entrada constante de amplitud uno y se mantiene el tiempo suficiente, la salida de la planta en lazo abierto tiende a $0.75$ en las unidades de la representación. Este valor coincide con la altura aproximada de la respuesta de referencia durante el pulso, después del transitorio rápido.
 
 ### 2. Polos y estabilidad
 
-Los polos se determinan mediante las raíces del denominador de cada función de transferencia. Para la condición control, el denominador es $0.0001s^2+100.1s+101000$; para el caso, es $0.1s^2+1000.1s+2000$. Los polos de ambos sistemas se encuentran en el semiplano izquierdo, por lo que las dos condiciones presentan estabilidad.
+El polo de la planta se determina a partir de
 
-### 3. Interpretación de la respuesta temporal
+$$
+R(C_p+C_g)s+1=0,\qquad \boxed{s=-\frac{1}{R(C_p+C_g)}}.
+$$
 
-La condición control alcanza un valor final cercano a 1 V, mientras que la condición caso se aproxima a 0.5 V. Esta diferencia permite observar el efecto de los cambios en los elementos de almacenamiento y disipación del modelo. El controlador se utiliza para reducir la diferencia entre la respuesta del caso y la respuesta de referencia.
+Con $C_p+C_g=110\times10^{-6}\,\mathrm{F}$:
 
+| Condición | $R$ | Polo aproximado | Constante de tiempo $\tau=R(C_p+C_g)$ |
+|---|---:|---:|---:|
+| Individuo sano | $100\,\Omega$ | $-90.91\,\mathrm{s}^{-1}$ | $0.011\,\mathrm{s}$ |
+| Atrofia simulada | $10\,\mathrm{k}\Omega$ | $-0.9091\,\mathrm{s}^{-1}$ | $1.10\,\mathrm{s}$ |
+
+Ambos polos son negativos y, por tanto, ambas plantas son estables en lazo abierto. El incremento de $R$ aumenta la constante de tiempo y hace más lenta la respuesta del caso simulado.
+
+### 3. Interpretación de la respuesta
+
+En la gráfica, la referencia sana se aproxima rápidamente a su nivel de respuesta durante el pulso, mientras que el caso alterado presenta una evolución más gradual y continúa decayendo después de que termina la excitación. La salida controlada se aproxima a la respuesta de referencia.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="senales"></a>
 ## Señales de entrada y condiciones de simulación
 
-La señal de entrada utilizada es un escalón unitario:
+La señal utilizada en el código Python es un pulso rectangular de amplitud $F_0=1$ aplicado entre $t=1\,\mathrm{s}$ y $t=2\,\mathrm{s}$:
 
 $$
-V_e(t)=u(t)
+F(t)=\begin{cases}
+1, & 1\le t<2,\\
+0, & \text{en otro caso}.
+\end{cases}
 $$
 
-En Python se establece un intervalo de simulación de 0 a 10 segundos, con un paso de $1\times10^{-3}$ s y 10001 muestras. En MATLAB/Simulink se utiliza un tiempo de simulación de 10 s, el solucionador `ode15s` y un paso máximo de `1e-3` s.
+| Configuración | Valor |
+|---|---|
+| Tiempo total de simulación | $10\,\mathrm{s}$ |
+| Solver de Simulink desde MATLAB | `ode15s` |
+| Paso máximo de Simulink | $10^{-3}\,\mathrm{s}$ |
+| Intervalo de Python | `0` a `10` s |
+| Incremento del vector temporal Python | $10^{-3}\,\mathrm{s}$ |
+| Entrada | Pulso rectangular de amplitud 1, duración 1 s |
 
+Se aplica la misma señal a la condición sana y a la alterada para que la comparación dependa de los parámetros de cada modelo.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="matlab"></a>
 ## Implementación en MATLAB, Simulink y Simscape
 
-La implementación de MATLAB/Simulink se encuentra en el modelo `sistemap5.slx`. La ejecución se realiza desde el cuaderno `Bautista23212181_4.mlx`, configurando el tiempo de simulación, el solucionador y el paso máximo.
+El archivo [`Sistemap3.slx`](Sistemap3.slx) contiene el modelo de simulación. El cuaderno [`Bautista23212181_3.mlx`](Bautista23212181_3.mlx) abre el modelo, establece los parámetros de ejecución y recupera las señales para elaborar la figura comparativa.
+
+### Ejecución desde el cuaderno MATLAB
 
 ```matlab
 clc; clear; close all; warning('off','all')
-open_system('sistemap5')
+open_system('Sistemap3')
 parameters.StopTime = '10';
 parameters.Solver = 'ode15s';
 parameters.MaxStep = '1e-3';
-x = sim('sistemap5',parameters);
+x = sim('Sistemap3',parameters);
+
+plotsignals(x.t,x.F,x.Fsx,x.Fsy,x.PID,'Control y caso')
 ```
 
-Las señales se representan mediante la función `plotsignals`, utilizando las salidas de control, caso, tratamiento PID y entrada:
+El cuaderno utiliza las señales de entrada `F`, referencia `Fsx`, caso `Fsy` y salida controlada `PID`, y exporta la gráfica mediante `exportgraphics`. Su versión de consulta está disponible en [`Bautista23212181_3.pdf`](Bautista23212181_3.pdf).
 
-```matlab
-plotsignals(x.control,x.CE,x.FT,x.PID,x.Ve,'Caso')
-```
+### Representaciones y evidencias
 
-La evidencia de MATLAB/Simulink muestra las cuatro señales en el intervalo de 0 a 10 segundos. La respuesta del caso alcanza aproximadamente 0.5 V, mientras que la referencia y la respuesta tratada se mantienen próximas a 1 V.
+| Recurso | Evidencia |
+|---|---|
+| Modelo de simulación | [`Sistemap3.slx`](Sistemap3.slx) |
+| Cuaderno ejecutable | [`Bautista23212181_3.mlx`](Bautista23212181_3.mlx) |
+| Cuaderno exportado | [`Bautista23212181_3.pdf`](Bautista23212181_3.pdf) |
+| Figura de MATLAB | [`Control y caso.matlab.pdf`](Control%20y%20caso.matlab.pdf) |
 
-![Respuesta de control, caso y tratamiento PID en MATLAB](imagenes/Control_Caso_Matlab.jpg)
+El material proporcionado documenta el uso de Simulink. No se incorpora una afirmación de verificación con **Simscape Electrical** independiente porque no se aportó una evidencia separada que permita confirmarla.
 
-## Control en lazo cerrado y sintonización PID
+[Volver al contenido](#contenido)
 
-### 1. Esquema de control
+---
 
-La respuesta del sistema en condición control se utiliza como referencia para el sistema en condición caso. El controlador PID actúa sobre la planta del caso para aproximar su respuesta a la referencia. El error de seguimiento se define como:
+<a id="pid"></a>
+## Control en lazo cerrado y sintonización PI
+
+### 1. Esquema de retroalimentación
+
+El control busca que la respuesta del caso de atrofia simulada siga la salida del individuo sano. La diferencia entre la referencia y la salida del caso controlado se utiliza como señal de error:
 
 $$
-e(t)=V_{s,\mathrm{control}}(t)-V_{s,\mathrm{caso}}(t)
+e(t)=F_{s,\mathrm{control}}(t)-F_{s,\mathrm{tratamiento}}(t).
 $$
 
-### 2. Parámetros del controlador
+La ley de control PI se escribe como
 
-La captura de PID Tuner muestra la configuración PIDF y los parámetros del bloque:
+$$
+u(t)=K_pe(t)+K_i\int_0^t e(\tau)\,d\tau,
+$$
 
-| Parámetro | Valor mostrado |
+$$
+\boxed{K(s)=K_p+\frac{K_i}{s}}.
+$$
+
+### 2. Sintonización del controlador
+
+Las ganancias registradas en la captura de **PID Tuner** y utilizadas en el programa Python son:
+
+| Parámetro | Valor |
 |---|---:|
-| $P$ | 2.617 |
-| $I$ | 10.49 |
-| $D$ | -0.0459 |
-| $N$ | 6.016 |
+| $K_p$ | $0.0214581683425368$ |
+| $K_i$ | $42291.2654382088$ |
+| $K_d$ | No aplica (PI) |
 
-La gráfica de sintonización presenta la respuesta ajustada y la respuesta del bloque ante una referencia escalón. La respuesta ajustada muestra un sobreimpulso antes de aproximarse al valor de referencia.
+![Parámetros y respuesta del controlador PI](Controlador%20PI%281%29.jpg)
 
-![Sintonización del controlador PID](imagenes/PID_controller.jpg)
+En la respuesta **Tuned** de la captura se reportan aproximadamente $0.00057\,\mathrm{s}$ de tiempo de subida, $0.001\,\mathrm{s}$ de establecimiento y $0.104\%$ de sobreimpulso, con estabilidad de lazo cerrado indicada como *Stable*. Estos indicadores corresponden a la respuesta de sintonización mostrada en la herramienta, no a una medición fisiológica.
 
-### 3. Implementación del controlador en Python
+### 3. Función de transferencia de lazo cerrado
 
-En el script de Python se utilizan las ganancias:
+En la implementación de Python, la planta del caso alterado se combina con el PI mediante retroalimentación negativa unitaria:
 
 $$
-k_P=13209.9564,\qquad
-k_I=32316525.9285,\qquad
-k_D=0.18118
+T(s)=\frac{K(s)G_{\mathrm{caso}}(s)}{1+K(s)G_{\mathrm{caso}}(s)}.
 $$
 
-A partir de estas ganancias y de los componentes $C_r$, $R_e$, $R_r$ y $C_e$, se construye la función de transferencia del controlador. Posteriormente, se conecta en serie con la planta del caso y se obtiene el sistema en lazo cerrado mediante realimentación unitaria.
+La salida controlada se calcula aplicando como entrada a $T(s)$ la **respuesta de referencia del individuo sano**, según el código suministrado.
 
+[Volver al contenido](#contenido)
+
+---
+
+<a id="python"></a>
 ## Reproducción en Python
 
-El archivo `Bautista23212181_4.py` reproduce las funciones de transferencia de control y caso, construye el controlador PID y calcula las respuestas temporales mediante la biblioteca `control`.
+El archivo [`Bautista23212181_python.py`](Bautista23212181_python.py) reproduce la señal de entrada, construye las funciones de transferencia de ambas condiciones y obtiene sus respuestas mediante `scipy.signal.lsim`.
+
+El programa desarrolla las siguientes operaciones:
+
+1. Define $F_0$, $\alpha$, $C_g$, $C_p$, las dos resistencias y las ganancias PI.
+2. Construye el vector de tiempo con incremento de $1\,\mathrm{ms}$.
+3. Genera el pulso rectangular entre uno y dos segundos.
+4. Calcula las funciones de transferencia de referencia y del caso alterado.
+5. Simula ambas salidas en lazo abierto.
+6. Forma la función de transferencia del controlador PI y el lazo cerrado.
+7. Calcula la respuesta del tratamiento tomando como entrada la salida de referencia.
+8. Grafica las cuatro señales y guarda [`Sistema_Musculoesqueletico.pdf`](Sistema_Musculoesqueletico.pdf).
 
 ### Bibliotecas utilizadas
 
 ```python
 import numpy as np
-import math as m
-import control as ctrl
 import matplotlib.pyplot as plt
+from scipy import signal
 ```
 
-### Parámetros de simulación
+Para repetir los resultados se deben conservar los valores de los parámetros y la misma señal de entrada en ambas plataformas.
 
-```python
-x0, t0, tend, dt, w, h = 0, 0, 10, 1E-3, 10, 5
-N = round(tend/dt) + 1
-t = np.linspace(t0, tend, N)
-u = np.ones(N)
-```
+[Volver al contenido](#contenido)
 
-### Obtención de las plantas
+---
 
-La función `sis(C, R2, nombre)` utiliza $R_1=1\,k\Omega$ y $L=100\,mH$, y calcula los coeficientes del numerador y denominador para cada condición:
-
-```python
-def sis(C, R2, nombre):
-    R1, L = 1E3, 100E-3
-    num = [L, R2]
-    den = [C*L*R1, C*R1*R2+L, R1+R2]
-    sys = ctrl.tf(num, den)
-    print(f"Función de transferencia {nombre}: {sys}\n")
-    return sys
-
-sysControl = sis(1E-6, 100E3, "Control")
-sysCaso = sis(1000E-6, 1E3, "Caso")
-```
-
-### Respuestas del sistema
-
-El programa calcula la respuesta de cada planta ante el escalón unitario y la respuesta del sistema controlado. Finalmente, genera la gráfica comparativa y guarda el resultado como `Control_caso_python4.pdf`.
-
-[Consultar la gráfica generada por Python](Control_caso_python4.pdf)
-
+<a id="laboratorio"></a>
 ## Controlador analógico y laboratorio
 
-Se realizó la comparación experimental de las señales mediante el osciloscopio OWON. La captura muestra las respuestas medidas para las condiciones implementadas en el circuito, con escalas verticales de 500 mV por división y una base de tiempo de 1.0 s por división.
+La práctica entregada se documenta como una **simulación computacional** del sistema musculoesquelético y de su controlador PI. Los archivos recibidos no incluyen fotografías de un montaje físico, mediciones con osciloscopio ni una lista verificada de componentes para construir un controlador analógico.
 
-La señal experimental permite observar la diferencia entre la respuesta de referencia y la respuesta del caso, así como el comportamiento de la señal tratada. La medición complementa los resultados obtenidos mediante las simulaciones computacionales.
+La analogía eléctrica permite interpretar el papel de la resistencia y las capacitancias en la respuesta del modelo. No obstante, los parámetros y las ganancias del PI utilizados en MATLAB y Python no se presentan como un circuito analógico físicamente construido o validado en laboratorio.
 
-![Captura de las señales medidas en el osciloscopio](imagenes/Señal_Lab.jpeg)
+### Alcance de la comprobación
 
+| Aspecto | Evidencia disponible |
+|---|---|
+| Circuito y análisis equivalente | Desarrollo matemático manuscrito |
+| Modelo computacional | Archivo `.slx` y cuaderno `.mlx` |
+| Sintonización PI | Captura de PID Tuner |
+| Reproducción independiente | Programa Python y gráfica PDF |
+| Montaje físico y osciloscopio | No documentados en los archivos entregados |
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="resultados"></a>
 ## Resultados y verificación cruzada
 
-Los resultados de las distintas representaciones permiten comparar las condiciones control y caso y observar el efecto del controlador PID.
+Las figuras presentan la señal de entrada y las respuestas de la condición sana, el caso alterado y el tratamiento PI.
 
-| Representación | Evidencia | Resultado observado |
+| Señal | Identificación en las figuras | Interpretación |
 |---|---|---|
-| Análisis matemático | Funciones de transferencia y cálculos | Ganancia final de aproximadamente 0.9901 para control y 0.5 para caso |
-| MATLAB/Simulink | `Captura_Matlab.pdf` | La respuesta control se mantiene próxima a 1 V y el caso se aproxima a 0.5 V |
-| Python | `Control_caso_python4.pdf` | Se reproducen las respuestas de ambas plantas y el tratamiento PID |
-| PID Tuner | `PID_controller.jpg` | Se muestra el ajuste del controlador y el seguimiento de referencia |
-| Laboratorio | `Señal_Lab.jpeg` | Se observan las señales medidas experimentalmente con el osciloscopio |
+| $F(t)$ | Amarillo | Excitación rectangular de entrada |
+| $F_s(t)$: Control | Azul discontinuo | Referencia del individuo sano |
+| $F_s(t)$: Caso | Naranja | Respuesta con amortiguamiento equivalente aumentado |
+| PI(t): Tratamiento | Rosa/rojo | Respuesta del caso bajo control PI |
 
-La comparación confirma que la condición caso presenta una respuesta final menor que la condición control. La acción del controlador busca aproximar la salida del caso a la respuesta de referencia. Las diferencias entre las representaciones pueden asociarse con las condiciones de simulación y las características no ideales de los componentes e instrumentos utilizados.
+### Comparación de resultados
 
+| Entorno | Archivo |
+|---|---|
+| MATLAB/Simulink | [`Control y caso.matlab.pdf`](Control%20y%20caso.matlab.pdf) |
+| Python | [`Sistema_Musculoesqueletico.pdf`](Sistema_Musculoesqueletico.pdf) |
+| Configuración del PI | [`Controlador PI(1).jpg`](Controlador%20PI%281%29.jpg) |
+| Diagrama fisiológico | [`Biorender_3.png`](Biorender_3.png) |
+
+### Interpretación
+
+La señal de entrada alcanza la amplitud unitaria durante el intervalo de excitación. La referencia sana responde rápidamente y se mantiene próxima a $0.75$ durante el pulso. En cambio, el caso alterado aumenta de manera progresiva y no alcanza el nivel de referencia antes de que termine la entrada. Una vez finalizado el pulso, su respuesta disminuye gradualmente.
+
+La respuesta con PI se superpone aproximadamente a la referencia sana en las figuras. Esta coincidencia muestra el efecto del controlador **dentro del modelo simulado**, sin constituir una demostración de recuperación fisiológica de un músculo atrofiado.
+
+### Consideraciones de verificación
+
+Las figuras de MATLAB y Python permiten una comparación visual. La diferencia detectada entre el coeficiente del numerador del desarrollo manuscrito y el código Python debe resolverse si se requiere demostrar igualdad matemática exacta entre todas las implementaciones.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="flujo"></a>
 ## Flujo de trabajo
 
-1. Interpretar la descripción fisiológica del sistema endócrino.
-2. Proponer el circuito eléctrico equivalente e identificar $R_1$, $C$, $L$ y $R_2$.
-3. Formular las ecuaciones integro-diferenciales mediante las leyes de Kirchhoff.
-4. Aplicar la transformada de Laplace y obtener las funciones de transferencia.
-5. Calcular el error en estado estacionario y analizar los polos de control y caso.
-6. Implementar las plantas en MATLAB/Simulink y Python.
-7. Diseñar y sintonizar el controlador PID para el seguimiento de la respuesta de referencia.
-8. Obtener las respuestas experimentales con el osciloscopio.
-9. Comparar y documentar los resultados en el repositorio.
+**Secuencia de desarrollo de la práctica**
 
+1. **Modelo musculoesquelético:** identificación del músculo, tendón y propiedades mecánicas.
+2. **Analogía eléctrica:** representación de elasticidades y amortiguamiento.
+3. **Análisis matemático:** aplicación de superposición y obtención de la función de transferencia.
+4. **Análisis dinámico:** determinación de polos y evaluación de estabilidad.
+5. **Escenarios de simulación:** individuo sano (R = 100 Ω) y atrofia simulada (R = 10 kΩ).
+6. **Comparación de respuestas:** evaluación de la fuerza transmitida en ambos escenarios.
+7. **Control PI:** sintonización en Simulink y evaluación de la respuesta con tratamiento.
+8. **Reproducción en Python:** implementación del modelo y generación de gráficas.
+9. **Verificación y documentación:** comparación de resultados y organización del repositorio.
+
+**Flujo resumido:** Modelo fisiológico → Analogía eléctrica → Función de transferencia → Simulación de control y caso → Control PI → Comparación MATLAB/Python → Documentación en GitHub.
+
+El procedimiento reúne la interpretación fisiológica, el análisis de la analogía eléctrica, la simulación de dos condiciones y la comparación de la respuesta controlada con la referencia.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="actividades"></a>
 ## Actividades del estudiante
 
-- [x] Construcción del circuito eléctrico equivalente para las condiciones control y caso.
-- [x] Obtención de las funciones de transferencia.
-- [x] Análisis del error en estado estacionario.
-- [x] Análisis de estabilidad mediante los polos.
-- [x] Bosquejo y comparación de las respuestas temporales.
-- [x] Formulación del modelo mediante ecuaciones integro-diferenciales.
-- [x] Implementación y simulación en MATLAB/Simulink.
-- [x] Reproducción de las respuestas mediante Python.
-- [x] Diseño y sintonización del controlador PID.
-- [x] Obtención de evidencia experimental mediante osciloscopio.
-- [x] Elaboración del diagrama biológico.
-- [x] Documentación de resultados y evidencias para el repositorio.
+### Etapa 1. Identificación y formulación
 
+- [x] Identificar los elementos del modelo musculoesquelético.
+- [x] Elaborar el diagrama biológico del individuo sano y el caso simulado.
+- [x] Desarrollar el análisis matemático de la analogía eléctrica.
+- [x] Obtener una expresión de la función de transferencia.
+- [x] Analizar la estabilidad en lazo abierto.
+
+### Etapa 2. Simulación de las condiciones
+
+- [x] Configurar el modelo `Sistemap3.slx`.
+- [x] Utilizar una entrada rectangular de un segundo de duración.
+- [x] Simular el individuo sano y el caso de atrofia.
+- [x] Generar la gráfica comparativa desde MATLAB.
+
+### Etapa 3. Control y reproducción
+
+- [x] Configurar y sintonizar el controlador PI.
+- [x] Registrar las ganancias proporcional e integral.
+- [x] Implementar las funciones de transferencia en Python.
+- [x] Generar la figura con las cuatro señales.
+- [ ] Confirmar la discrepancia entre el coeficiente del numerador manuscrito y el implementado en Python.
+
+### Etapa 4. Documentación
+
+- [x] Conservar los archivos del análisis, modelos, código y figuras.
+- [x] Organizar los resultados y la descripción de la práctica en este README.
+- [ ] Publicar los archivos en el repositorio de GitHub.
+- [ ] Incorporar `CITATION.cff` si se solicita en la entrega.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="estructura"></a>
 ## Estructura del repositorio
 
+La siguiente estructura utiliza los **nombres reales de los archivos entregados**:
+
 ```text
-MSFP4/
+.
 ├── README.md
-├── CITATION.cff
-├── sistemap5.slx
-├── Bautista23212181_4.mlx
-├── Bautista23212181_4.py
-├── Captura_Matlab.pdf
-├── Control_caso_python4.pdf
-├── PID_controller.jpg
-├── Señal_Lab.jpeg
-└── Sistema endocrino.png
+├── Análisis matemático_Bautista23212181.pdf
+├── Bautista23212181_3.mlx
+├── Bautista23212181_3.pdf
+├── Bautista23212181_python.py
+├── Biorender_3.png
+├── Control y caso.matlab.pdf
+├── Controlador PI(1).jpg
+├── Sistema_Musculoesqueletico.pdf
+└── Sistemap3.slx
 ```
 
-Los nombres del árbol corresponden a los archivos entregados para documentar la práctica. Se recomienda conservarlos sin cambios o actualizar los enlaces del README si se renombran.
+Se recomienda mantener estos archivos en la raíz del repositorio para que los enlaces relativos funcionen. El archivo `CITATION.cff` puede añadirse cuando se cuente con los datos definitivos del repositorio.
 
+[Volver al contenido](#contenido)
+
+---
+
+<a id="requisitos"></a>
 ## Requisitos
 
-Para reproducir las simulaciones se requiere:
+### Software
 
-- MATLAB con Simulink.
-- Python 3.
-- Bibliotecas de Python: `numpy`, `control` y `matplotlib`.
-- El modelo `sistemap5.slx`.
-- El archivo de código `Bautista23212181_4.py`.
-- El cuaderno de MATLAB `Bautista23212181_4.mlx`.
+- **MATLAB** para ejecutar el cuaderno computacional.
+- **Simulink** para abrir y ejecutar `Sistemap3.slx`.
+- **PID Tuner / herramientas de sintonización de Simulink** para consultar la configuración del PI.
+- **Python 3** con `numpy`, `matplotlib` y `scipy`.
+- **Visual Studio Code** u otro entorno compatible para ejecutar el archivo `.py`.
+- **Git y GitHub** para organizar y publicar la documentación.
 
-Instalación de las bibliotecas de Python:
+### Archivos de entrada
 
-```bash
-pip install numpy control matplotlib
-```
+El modelo `Sistemap3.slx` debe estar disponible en la ruta de trabajo de MATLAB. El código Python genera internamente su señal rectangular y no requiere un archivo externo de datos para esa entrada.
 
+[Volver al contenido](#contenido)
+
+---
+
+<a id="reproducibilidad"></a>
 ## Reproducibilidad y entregables
 
-Para reproducir los resultados, colocar los archivos del modelo, el cuaderno y el código Python en el directorio de trabajo correspondiente. Ejecutar el modelo de Simulink desde MATLAB con el solucionador `ode15s`, tiempo final de 10 segundos y paso máximo de `1e-3` s. Para la reproducción en Python, ejecutar `Bautista23212181_4.py`.
+### Secuencia de reproducción
 
-Los entregables documentados en el repositorio son:
+1. Descargar los archivos del repositorio en una misma carpeta.
+2. Consultar el diagrama musculoesquelético y el análisis matemático.
+3. Abrir `Bautista23212181_3.mlx` en MATLAB.
+4. Comprobar que `Sistemap3.slx` esté disponible y ejecutar el cuaderno.
+5. Verificar las señales `F`, `Fsx`, `Fsy` y `PID` y exportar la gráfica.
+6. Revisar la captura del controlador PI y sus ganancias.
+7. Instalar las dependencias de Python si no están disponibles.
+8. Ejecutar `Bautista23212181_python.py` y generar la figura correspondiente.
+9. Comparar las gráficas de MATLAB y Python con los mismos parámetros.
+10. Verificar la diferencia entre las expresiones del numerador antes de presentar una validación algebraica definitiva.
 
-- Diagrama biológico del sistema endócrino.
-- Desarrollo matemático y funciones de transferencia.
-- Modelo de Simulink y cuaderno de MATLAB.
-- Código fuente de Python.
-- Gráficas de las respuestas de MATLAB/Simulink y Python (`Captura_Matlab.pdf` y `Control_caso_python4.pdf`).
-- Captura de la sintonización PID.
-- Evidencia experimental obtenida con el osciloscopio.
-- Archivo `README.md` y archivo `CITATION.cff`.
+### Resultados y evidencias
 
+| Entregable | Evidencia incluida |
+|---|---|
+| Análisis matemático | PDF manuscrito de cuatro páginas |
+| Modelo de Simulink | `Sistemap3.slx` |
+| MATLAB | Cuaderno `.mlx` y exportación `.pdf` |
+| Python | Código `.py` |
+| Sintonización PI | Captura `.jpg` |
+| Resultados gráficos | Dos archivos PDF comparativos |
+| Interpretación fisiológica | Diagrama BioRender `.png` |
+| Documentación | `README.md` |
+
+### Criterios de presentación académica
+
+Se distinguen los **resultados simulados**, los parámetros utilizados en el código y la interpretación fisiológica del modelo. La atrofia muscular se representa mediante una modificación del parámetro $R$ y no como una caracterización clínica experimental. No se atribuyen mediciones físicas a simulaciones computacionales.
+
+[Volver al contenido](#contenido)
+
+---
+
+<a id="referencias"></a>
 ## Referencias
 
-1. M. C. Khoo, *Physiological Control Systems: Analysis, Simulation, and Estimation*, 2nd ed., IEEE Press, 2018.
-2. F. C. Hoppensteadt and C. S. Peskin, *Modeling and Simulation in Medicine and the Life Sciences*, Springer.
-3. J. E. Hall, *Guyton and Hall Textbook of Medical Physiology*, 14th ed., Elsevier, 2021.
-4. K. Ogata, *Ingeniería de Control Moderna*, 5.ª ed., Pearson Educación, 2010.
-5. N. S. Nise, *Control Systems Engineering*, 8th ed., John Wiley & Sons, 2020.
-6. P. A. Valle, *Syllabus para Modelado de Sistemas Fisiológicos*, Tecnológico Nacional de México, Instituto Tecnológico de Tijuana, Tijuana, B.C., México, 2026.
-7. Tecnológico Nacional de México, *Programa de estudio de la asignatura Modelado de Sistemas Fisiológicos*, IBF-1020.
+[1] P. A. Valle, *Syllabus para Modelado de Sistemas Fisiológicos*, Tecnológico Nacional de México / Instituto Tecnológico de Tijuana, Tijuana, B. C., México, 2026. Disponible en: https://biomath.xyz/course/
+
+[2] M. C. Khoo, *Physiological Control Systems: Analysis, Simulation, and Estimation*, 2nd ed., IEEE Press, 2018.
+
+[3] F. C. Hoppensteadt y C. S. Peskin, *Modeling and Simulation in Medicine and the Life Sciences*, Springer.
+
+[4] J. E. Hall, *Guyton and Hall Textbook of Medical Physiology*, 14th ed., Elsevier, 2021.
+
+[5] K. Ogata, *Ingeniería de Control Moderna*, 5.ª ed., Pearson Educación, 2010.
+
+[6] N. S. Nise, *Control Systems Engineering*, 8th ed., John Wiley & Sons, 2020.
+
+[7] Tecnológico Nacional de México, *Programa de estudio de la asignatura Modelado de Sistemas Fisiológicos, IBF-1020*.
+
+[Volver al contenido](#contenido)
+
+---
 
 ## Uso académico
 
-Este repositorio se presenta con fines académicos como evidencia del desarrollo de la Práctica 4 de la asignatura Modelado de Sistemas Fisiológicos, del programa de Ingeniería Biomédica del Tecnológico Nacional de México, Instituto Tecnológico de Tijuana.
+Este repositorio documenta una práctica de modelado y control del sistema musculoesquelético mediante experimentación *in silico*. Los resultados corresponden a un modelo eléctrico equivalente, una comparación de condiciones simuladas y una estrategia de control PI; no representan una evaluación clínica ni una propuesta terapéutica para la atrofia muscular.
